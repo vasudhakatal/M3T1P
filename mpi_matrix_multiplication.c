@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    int N = m_Matrix; // Random matrix size between 1 and 90
+    int N = m_Matrix;
     printf("Matrix Size: %d x %d\n", N, N);
     int **A, **B, **C;
 
@@ -56,8 +56,8 @@ int main(int argc, char **argv) {
 
     // Divide work among processes
     int c_size = N / size;
-    int s_row = rank * c_size;
-    int e_row = (rank == size - 1) ? N : (rank + 1) * c_size;
+    int starting_row = rank * c_size;
+    int ending_row = (rank == size - 1) ? N : (rank + 1) * c_size;
 
     // Measure execution time
     struct timespec start_time, end_time;
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     mMatrix(N, A, B, C);
 
     // Gather results from all processes to process 0
-    MPI_Gather(C + s_row, c_size * N, MPI_INT, C, c_size * N, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(C + starting_row, c_size * N, MPI_INT, C, c_size * N, MPI_INT, 0, MPI_COMM_WORLD);
 
     // Measure end time
     clock_gettime(CLOCK_MONOTONIC, &end_time);
